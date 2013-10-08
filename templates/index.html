@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset="utf-8" />
+
+    <title>GRAPHICAL REPRESENTATION OF CPU LOAD</title>
+
+    <link type="text/css"
+          rel="stylesheet"
+          href="{{ url_for('static', filename='hello.css')}}" />
+
+    <!-- Script libraries: JQuery, Flot, Flot time plugin -->
+    <!-- Downloading the libraries and saving them in the respective files, jquery.flot.min.js and jquery.flot.time.min.js -->
+    <script src = "http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+    </script>
+    <script src = "{{ url_for('static', filename = 'jquery.flot.min.js') }}">
+    </script>
+    <script src = "{{ url_for('static', filename = 'jquery.flot.time.min.js') }}">
+    </script>
+
+    <script>
+        var plot_data = {{ plot_data }};
+        for (var x=0; x < plot_data[0].length; x++){
+
+           /*
+* Unix timestamp are in seconds, javascript timestamps are in
+* miliseconds, therefore, we need to convert all data
+*/
+           plot_data[0][x][0] = plot_data[0][x][0]*1000;
+           plot_data[1][x][0] = plot_data[1][x][0]*1000;
+           plot_data[2][x][0] = plot_data[2][x][0]*1000;
+        }
+
+       /*
+* creates the 3 Flot series of data out of the array,
+* in order to give them a label to be shown in the legend
+*/
+       var plot_data1 = {
+           label : "Average load last minute",
+           data : plot_data[0]
+       }
+       var plot_data2 = {
+           label : "Average load last 5 minutes",
+           data : plot_data[1]
+       }
+       var plot_data3 = {
+           label : "Average load last 15 minutes",
+           data : plot_data[2]
+       }
+    </script>
+
+    <!-- Script containing radio buttons handle and Flot plotting -->
+    <script src = "{{ url_for('static', filename = 'plottingloads.js') }}">
+    </script>
+</head>
+
+<body>
+
+    <form id = "form" action = "{{ url_for('index') }}" method = "GET">
+
+        <label for = "all">View all</label>
+        <input type = "radio" name ="selectby" id = "all" value = "all" checked>
+        </input>
+
+        <label for = "date">&emsp;Select by date</label>
+        <input type = "radio" name = "selectby" id = "date" value = "date">
+        </input>
+
+        <label for = "time">&emsp;Select by time </label>
+        <input type = "radio" name = "selectby" id = "time" value = "time">
+        </input>
+
+        <br><br>
+
+        <!-- Info to be shown when radio time is activated -->
+        <span id = "day_for_time_span" style = "display:none">
+        Day from which to select
+        <input
+            type = "text"
+            name = "day_for_time"
+            id ="day_for_time"
+            pattern = "(((20)[1-9][0-9])(/|-|\.|:|')?(((0[1-9])|(1[0-2]))(/|-|\.|:|')?(([0-2][0-9])|(3[0-1]))?)?)"
+            title = "Date string, like: '2013' or '2013/08' or '2013-08-21'">
+        </input>
+        </span>
+
+        <br>
+
+        <!-- Info to be shown when radio time or date are activated -->
+        <span id = "selection_span" style = "display:none">
+        Start of selection
+        <input type = "text" name = "start">
+        End of selection
+        <input type = "text" name = "end">
+        </span>
+
+        <br>
+
+        <input type = "submit" value = "Submit">
+    </form>
+
+    <!-- Graphic's container -->
+    <div id = "plot" style = "width:800px; height:400px"> </div>
+
+</body>
+</html>
